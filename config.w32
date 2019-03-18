@@ -1,0 +1,7 @@
+ARG_ENABLE('simple', 'simple support', 'no');
+
+if (PHP_SIMPLE != 'no') {
+	AC_DEFINE('HAVE_SIMPLE', 1, 'simple support enabled');
+
+	EXTENSION('simple', 'simple.c', null, '/DZEND_ENABLE_STATIC_TSRMLS_CACHE=1');
+}
