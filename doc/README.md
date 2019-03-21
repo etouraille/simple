@@ -6,12 +6,13 @@
 
 la fonction hello accessible depuis PHP est définie dans l'extension de la manière suivante:
 
-```
+```c
 PHP_FUNTION(hello) {
   ZVAL_STR(return_value, zend_init_string("hello world", 11, 0 ));
 }
 ```
 hello doit être définit dans la constante zend_function_entry
+
 ```c
 const zend_function_entry test_functions[] = {
 	  PHP_FE(hello, NULL)
@@ -22,7 +23,7 @@ const zend_function_entry test_functions[] = {
 ### valeur de retour d'une fonction.
  la valeur de retour d'une fonction est accessible dans le corps de la fonction par la variable return_value. return_value est un pointeur vers une ZVAL
 Dans la fonction hello :
-```
+```c
 ZVAL_STR(return_value, zend_init_string("hello world", 11, 0 ));
 ```
 [ZVAL_STR](https://phpinternals.net/docs/zval_str) prends en premier argument un pointeur vers une ZVAL un zend_string en second argument et affecte le second au premier sous forme de string. Ainsi, on affecte un string à la valeur de retour de la fonction.
@@ -32,7 +33,7 @@ ZVAL_STR(return_value, zend_init_string("hello world", 11, 0 ));
 Pour passer un argument à une fonction, on peut typer l'argument, c'est a dire indiquer quelle type de valeur on attends, on peut aussi passer une référence, et enfin on peut passer un argument facultatif. Il existe des macro pour simplifier la lecture des arguments d'une fonction.
 Prenons l'exemple suivant:
 
-```
+```c
 PHP_FUNTION(test) {
 
   zval * t_param, * var;
@@ -49,7 +50,7 @@ PHP_FUNTION(test) {
 }
 ```
 la fonction pourra être appelée depuis php Ainsi
-```
+```php
 test(['hello'], "string");
 ```
 Z_PARAM_ARRAY( t_param) indique que le premier paramètre doit être de type array et sa référence est ecrite dans t_param.
@@ -61,22 +62,22 @@ On a ZEND_PARSE_PARAMETERS_START(2,3) le deux indique qu'il y deux paramètres o
 le dernier paramètre est de type facultatif. Il peut avoir n'importe quel type.
 On peut tester le type de paramètre dans la fonction ainsi:
 
-```
+```c
 Z_TYPE( var ) == IS_TRUE, IS_ARRAY, IS_NULL, IS_STRING etc ...
 ```
 
 ### Passer une valeur par référence.
-```
+```php
 test(&$array, "hello")
 ```
 
 Si on souhaite avoir des paramètres passés en référence il faut modifier l'appel de la macro PHP_FE et lui passer une second paramètre.
 
-```
+```c
 PHP_FE(test, arginfo_test)
 ```
 Et définir arginfo_test de la manière suivante :
-```
+```c
 ZEND_BEGIN_ARG_INFO_EX(arginfo_test, 0,0,3)
 	ZEND_ARG_INFO(1, t_param)
   ZEND_ARG_INFO(0, str)
@@ -89,7 +90,7 @@ si Le premier argument de ZEND_ARG_INFO vaut 1 cela indique que le paramètre es
 
 Dans le cas d'un tableau passé en référence, cette configuration ne suffit pas, il faut aussi utiliser la macro
 
-```
+```c
 ZEND_PARSE_PARAMETERS_START( 2, 3 )
   Z_PARAM_ARRAY_EX(t_param, 0, 1)
   ...
@@ -99,7 +100,7 @@ Avec le 3 ième paramètre qui vaut 1, pour ce que j'en ai compris cela réalise
 
 ## Les string.
 
-```
+```c
   zend_string * value;
   value = zend_string_init("hello world", 11, 0 );
 ```
