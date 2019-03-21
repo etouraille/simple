@@ -109,7 +109,7 @@ Le second paramètre est la longueur de la chaîne, et le dernier paramètre ind
 
 ## Array
 
-Pour comprendre comment les array fonctionnent il faut comprendre les hastable, un array etant une zval qui pointe vers un hastable. Je renvoie vers la lecture de [l'article](http://blog.jpauli.tech/2016/04/08/hashtables.html) du blog de Julien Pauli.
+Pour comprendre comment les array fonctionnent il faut comprendre les hastable, un array etant une zval qui pointe vers un hastable. Je renvoie vers la lecture de [l'article](http://blog.jpauli.tech/2016-04-08-hashtables-html/) du blog de Julien Pauli.
 
 
 ### initialiser un tableau.

@@ -44,6 +44,67 @@ PHP_FUNCTION(simple_test2)
 }
 /* }}}*/
 
+/*
+PHP_FUNCTION( vect ) {
+        HashTable  * x;
+        HashTable  * y;
+        zval * z;
+        int i = 0, j = 0;
+        zval * val;
+        zval * colval, rvc;
+        Bucket p,q;
+
+        int l,m;
+
+        ZEND_PARSE_PARAMETERS_START(2, 2)
+        Z_PARAM_ARRAY_HT(x)
+        Z_PARAM_ARRAY_HT(y)
+        ZEND_PARSE_PARAMETERS_END();
+
+
+
+        array_init_size( return_value, l = zend_hash_num_elements( x ));
+        zend_hash_real_init( Z_ARRVAL_P(return_value), 1);
+
+        p = Z_ARRVAL_P(return_value)->arData[1];
+
+        //Z_ARRVAL_P(return_value)->arData = x->arData;
+        z = emalloc(zend_hash_num_elements( x ) * sizeof(zval));
+        val = emalloc(sizeof(zval));
+        for(i=0;i<l;i++) {
+            q = x->arData[i];
+            //Z_ARRVAL_P(return_value)->arData[i].val = p.val;
+
+            array_init_size( z+i , m=zend_hash_num_elements( y ));
+            zend_hash_real_init( Z_ARRVAL_P(z+i), 1);
+            for(j=0;j<m;j++) {
+                p = y->arData[j];
+                ZVAL_LONG(val,Z_LVAL(p.val)*Z_LVAL(q.val));
+                zend_hash_index_add_new(Z_ARRVAL_P(z+i),j, val);
+            }
+            zend_hash_index_add_new(Z_ARRVAL_P(return_value),i, z+i);
+        }
+
+
+        efree(z);
+        efree(val);
+
+}
+*/
+
+PHP_FUNCTION(init_array) {
+
+	zval * val;
+	val = malloc(sizeof(zval));
+
+	array_init_size( return_value, 1);
+	zend_hash_real_init( Z_ARRVAL_P(return_value), 1);
+	ZVAL_LONG(val, 10)
+	zend_hash_index_add_new(Z_ARRVAL_P(return_value),0, val);
+	zend_hash_index_add_new(Z_ARRVAL_P(return_value),1, val);
+
+}
+
 /* {{{ PHP_RINIT_FUNCTION
  */
 PHP_RINIT_FUNCTION(simple)
@@ -81,6 +142,8 @@ ZEND_END_ARG_INFO()
 static const zend_function_entry simple_functions[] = {
 	PHP_FE(simple_test1,		arginfo_simple_test1)
 	PHP_FE(simple_test2,		arginfo_simple_test2)
+	//PHP_FE(vect, NULL)
+	PHP_FE(init_array, NULL)
 	PHP_FE_END
 };
 /* }}} */
@@ -107,4 +170,3 @@ ZEND_TSRMLS_CACHE_DEFINE()
 # endif
 ZEND_GET_MODULE(simple)
 #endif
-
