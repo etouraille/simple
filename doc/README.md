@@ -12,7 +12,7 @@ PHP_FUNTION(hello) {
 }
 ```
 hello doit être définit dans la constante zend_function_entry
-```
+```c
 const zend_function_entry test_functions[] = {
 	  PHP_FE(hello, NULL)
     ...
