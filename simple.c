@@ -96,13 +96,82 @@ PHP_FUNCTION(init_array) {
 
 	zval * val;
 	val = malloc(sizeof(zval));
-
-	array_init_size( return_value, 1);
-	zend_hash_real_init( Z_ARRVAL_P(return_value), 1);
+	zend_string * index;
+	HashTable * tab;
+	tab = malloc(sizeof(HashTable));
+	zend_hash_init( tab, 1, 0, ZVAL_PTR_DTOR , 0 );
+	zend_hash_real_init( tab, 1);
 	ZVAL_LONG(val, 10)
-	zend_hash_index_add_new(Z_ARRVAL_P(return_value),0, val);
-	zend_hash_index_add_new(Z_ARRVAL_P(return_value),1, val);
+	zend_hash_index_add_new(tab,0, val);
+	zend_hash_index_add_new(tab,1, val);
+	index = zend_string_init("Hello", 5 , 0 );
+	zend_hash_add_or_update(tab,index, val, HASH_ADD);
+	return_value = _zend_hash_find_known_hash(tab, index);
+	//zend_hash_del(Z_ARRVAL_P(return_value), index);
+	//zend_hash_find(Z_ARRVAL_P(return_value),index);
+}
 
+PHP_FUNCTION(array_unset) {
+
+	HashTable * tab;
+	zval * index;
+
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_ARRAY_HT_EX(tab, 0, 1)
+		Z_PARAM_ZVAL(index)
+	ZEND_PARSE_PARAMETERS_END();
+
+
+
+	if(Z_TYPE_P(index) == IS_STRING ) {
+		zend_hash_del(tab, Z_STR_P(index));
+	} else if(Z_TYPE_P(index) == IS_LONG ) {
+		zend_hash_index_del(tab, Z_LVAL_P(index));
+	}
+
+	ZVAL_ARR(return_value, tab);
+}
+
+PHP_FUNCTION(_add_element) {
+
+	HashTable * tab;
+	zval * index;
+	zval * val;
+
+	ZEND_PARSE_PARAMETERS_START(3, 3)
+		Z_PARAM_ARRAY_HT_EX(tab, 0, 1)
+		Z_PARAM_ZVAL(index)
+		Z_PARAM_ZVAL(val)
+	ZEND_PARSE_PARAMETERS_END();
+
+
+
+	if(Z_TYPE_P(index) == IS_STRING ) {
+		zend_hash_add(tab, Z_STR_P(index), val );
+	} else if(Z_TYPE_P(index) == IS_LONG ) {
+		zend_hash_index_add_new(tab, Z_LVAL_P(index) , val);
+	}
+
+	ZVAL_ARR(return_value, tab);
+}
+
+
+PHP_FUNCTION(_find_element) {
+
+	HashTable * tab;
+	zval * index;
+
+
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_ARRAY_HT(tab)
+		Z_PARAM_ZVAL(index)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if(Z_TYPE_P(index) == IS_STRING ) {
+		return_value = zend_hash_find(tab, Z_STR_P( index));
+	} else if(Z_TYPE_P(index) == IS_LONG ) {
+		return_value = zend_hash_index_find(tab, Z_LVAL_P(index));
+	}
 }
 
 /* {{{ PHP_RINIT_FUNCTION
@@ -144,6 +213,9 @@ static const zend_function_entry simple_functions[] = {
 	PHP_FE(simple_test2,		arginfo_simple_test2)
 	//PHP_FE(vect, NULL)
 	PHP_FE(init_array, NULL)
+	PHP_FE(array_unset, NULL)
+	PHP_FE(_add_element, NULL)
+	PHP_FE(_find_element, NULL)
 	PHP_FE_END
 };
 /* }}} */

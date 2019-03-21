@@ -111,16 +111,118 @@ Le second paramètre est la longueur de la chaîne, et le dernier paramètre ind
 
 Pour comprendre comment les array fonctionnent il faut comprendre les hastable, un array etant une zval qui pointe vers un hastable. Je renvoie vers la lecture de [l'article](http://blog.jpauli.tech/2016-04-08-hashtables-html/) du blog de Julien Pauli.
 
+Donc quand on travaille avec les Array PHP, en définitive il est plus simple d'utiliser les HashTable q
+qui ont une api définit dans [zend_hash.c](https://github.com/php/php-src/blob/master/Zend/zend_hash.c) du code source de PHP. Les fonction exposé sont préfixées de ZEND_API.
 
 ### initialiser un tableau.
 
+L'initialisation d'un tableau ou d'un hashtable se fait en deux temps. D'abbord on a alloue la mémoire, puis ensuite on l'initialise
+
+#### Initilisation d'un array
+```c
+int size = 10;
+Z_ARR * tab;
+array_init_size( tab, size );
+zend_hash_real_init( Z_ARRVAL_P(tab), 1);
+```
+Avec [Z_ARRVAL_P](https://phpinternals.net/docs/z_arrval) la macro PHP qui va récupérer la valeur de l'Array, c'est à dire le HashTable.
+
+#### Initialisation d'un Hashtable
+
+```c
+zend_hash_init( tab, 1, 0, ZVAL_PTR_DTOR , 0 );
+zend_hash_real_init( tab, 1);
+```
+
+avec [zend_hash_init](https://phpinternals.net/docs/zend_hash_init)
+
 ### ajouter un élement à un tableau.
 
-ajouter a la fin.
-choix de l'index.
+La fonction suivante permet d'ajouter un élément à la find d'un tableau, le nouveau tableau est retourné:
+```c
+PHP_FUNCTION(add_element) {
+
+	HashTable * tab;
+	zval * index;
+	zval * val;
+
+	ZEND_PARSE_PARAMETERS_START(3, 3)
+		Z_PARAM_ARRAY_HT_EX(tab, 0, 1)
+		Z_PARAM_ZVAL(index)
+		Z_PARAM_ZVAL(val)
+	ZEND_PARSE_PARAMETERS_END();
+
+
+
+	if(Z_TYPE_P(index) == IS_STRING ) {
+		zend_hash_add(tab, Z_STR_P(index), val );
+	} else if(Z_TYPE_P(index) == IS_LONG ) {
+		zend_hash_index_add_new(tab, Z_LVAL_P(index) , val);
+	}
+
+	ZVAL_ARR(return_value, tab);
+}
+```
+Noter que le tableau passé en argument est déréférencé. En effet, la fonction qui ajoute un élément ne peux fonctionner que si le tableau a une seul référence:
+```c
+Z_PARAM_ARRAY_HT_EX(tab, 0, 1)
+```
+c'est le paramètre 1 qui indique cela.
+Par ailleurs, dans la fonction on utilise des HashTable : la fonction attend un Array en paramètre qui est transformé en HashTable ( c'est le HT de Z_PARAM_ARRAY_HT)
+
+Les deux fonctions utilisées pour ajouter un élément au tableau parlent d'elle même. Elles fonctionent soit avec un paramètre de type LONG soit avec une chaîne de charactère. Cela est du à la manière dont sont gérés les HashTable, en effet, si tout les index sont de type integer, le HashTable est stocké sous une forme optimisée qui permet de s'affranchir de la gestion des clefs sous forme de chaine de charactère. Son emprunte mémoire est ainsi diminuée.
 
 ### supprimer un élément d'un tableau.
 
-### ajouter un tableau a un tableau.
+la fonction suivante supprime un élément d'un tableau:
+
+```c
+PHP_FUNCTION(array_unset) {
+
+	HashTable * tab;
+	zval * index;
+
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_ARRAY_HT_EX(tab, 0, 1)
+		Z_PARAM_ZVAL(index)
+	ZEND_PARSE_PARAMETERS_END();
+
+
+
+	if(Z_TYPE_P(index) == IS_STRING ) {
+		zend_hash_del(tab, Z_STR_P(index));
+	} else if(Z_TYPE_P(index) == IS_LONG ) {
+		zend_hash_index_del(tab, Z_LVAL_P(index));
+	}
+
+	ZVAL_ARR(return_value, tab);
+}
+
+```
+
+
+### trouver un élément dans un tableau.
+
+Nota cette fonction ne fonctionn pas ??
+
+```c
+PHP_FUNCTION(array_find_element) {
+
+	HashTable * tab;
+	zval * index;
+
+
+	ZEND_PARSE_PARAMETERS_START(2, 2)
+		Z_PARAM_ARRAY_HT(tab)
+		Z_PARAM_ZVAL(index)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if(Z_TYPE_P(index) == IS_STRING ) {
+		return_value = zend_hash_find(tab, Z_STR_P( index));
+	} else if(Z_TYPE_P(index) == IS_LONG ) {
+		return_value = zend_hash_index_find(tab, Z_LVAL_P(index));
+	}
+}
+```
 
 ## Appeler une fonction PHP existante.
