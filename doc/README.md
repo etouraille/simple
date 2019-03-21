@@ -20,13 +20,12 @@ const zend_function_entry test_functions[] = {
 };
 ```
 ### valeur de retour d'une fonction.
- la valeur de retour d'une fonction est accessible dans le corps de la fonction par la le pointeur vers une
- ZVAL return_value
+ la valeur de retour d'une fonction est accessible dans le corps de la fonction par la variable return_value. return_value est un pointeur vers une ZVAL
 Dans la fonction hello :
 ```
 ZVAL_STR(return_value, zend_init_string("hello world", 11, 0 ));
 ```
-(ZVAL_STR)[https://phpinternals.net/docs/zval_str] prends en premier argument un pointeur vers une ZVAL un zend_string en second argument et affecte le second au premier sous forme de string. Ainsi, on affecte un string à la valeur de retour de la fonction.
+[ZVAL_STR](https://phpinternals.net/docs/zval_str) prends en premier argument un pointeur vers une ZVAL un zend_string en second argument et affecte le second au premier sous forme de string. Ainsi, on affecte un string à la valeur de retour de la fonction.
 
 ### Passer un argument à une fonction.
 
@@ -109,7 +108,7 @@ Le second paramètre est la longueur de la chaîne, et le dernier paramètre ind
 
 ## Array
 
-Pour comprendre comment les array fonctionnes il faut comprendre les hastable, un array etant une zval qui pointe vers un hastable. Je renvoie vers la lecture de (l'article)[http://blog.jpauli.tech/2016/04/08/hashtables.html] du blog de Julien Pauli.
+Pour comprendre comment les array fonctionnent il faut comprendre les hastable, un array etant une zval qui pointe vers un hastable. Je renvoie vers la lecture de [l'article](http://blog.jpauli.tech/2016/04/08/hashtables.html) du blog de Julien Pauli.
 
 
 ### initialiser un tableau.
