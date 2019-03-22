@@ -11,7 +11,7 @@ PHP_FUNTION(hello) {
   ZVAL_STR(return_value, zend_init_string("hello world", 11, 0 ));
 }
 ```
-hello doit être définit dans la constante zend_function_entry
+hello doit être définie dans la constante zend_function_entry
 
 ```c
 const zend_function_entry test_functions[] = {
@@ -30,7 +30,7 @@ ZVAL_STR(return_value, zend_init_string("hello world", 11, 0 ));
 
 ### Passer un argument à une fonction.
 
-Pour passer un argument à une fonction, on peut typer l'argument, c'est a dire indiquer quelle type de valeur on attends, on peut aussi passer une référence, et enfin on peut passer un argument facultatif. Il existe des macro pour simplifier la lecture des arguments d'une fonction.
+Pour passer un argument à une fonction, on peut typer l'argument, c'est a dire indiquer quelle type de valeur on attends, on peut aussi passer une référence, et enfin on peut passer un argument facultatif. Il existe des macros pour simplifier la lecture des arguments d'une fonction.
 Prenons l'exemple suivant:
 
 ```c
@@ -49,17 +49,17 @@ PHP_FUNTION(test) {
   ...
 }
 ```
-la fonction pourra être appelée depuis php Ainsi
+la fonction pourra être appelée depuis php ainsi:
 ```php
 test(['hello'], "string");
 ```
-Z_PARAM_ARRAY( t_param) indique que le premier paramètre doit être de type array et sa référence est ecrite dans t_param.
+Z_PARAM_ARRAY( t_param) indique que le premier paramètre doit être de type array et sa référence est écrite dans t_param.
 le second paramètre doit être de type string.
 Les fonction qui permettent de lire les paramètres acceptent un argument de type pointeur.
 ### Arguments facultatifs.
 
-On a ZEND_PARSE_PARAMETERS_START(2,3) le deux indique qu'il y deux paramètres obligatoires, le 3 indique le nombre de paramètres totaux.
-le dernier paramètre est de type facultatif. Il peut avoir n'importe quel type.
+On a ZEND_PARSE_PARAMETERS_START(2,3) le 2 indique qu'il y deux paramètres obligatoires, le 3 indique le nombre de paramètres totaux.
+le dernier paramètre est de type facultatif. Ici il peut avoir n'importe quel type, c'est une ZVAL.
 On peut tester le type de paramètre dans la fonction ainsi:
 
 ```c
@@ -84,7 +84,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_test, 0,0,3)
   ZEND_ARG_INFO(0, var)
 ZEND_END_ARG_INFO()
 ```
-si Le premier argument de ZEND_ARG_INFO vaut 1 cela indique que le paramètre est passée par référence.
+si Le premier argument de ZEND_ARG_INFO vaut 1 cela indique que le paramètre est passé par référence.
 
 #### Tableau passé en référence:
 
@@ -95,7 +95,7 @@ ZEND_PARSE_PARAMETERS_START( 2, 3 )
   Z_PARAM_ARRAY_EX(t_param, 0, 1)
   ...
 ```
-Avec le 3 ième paramètre qui vaut 1, pour ce que j'en ai compris cela réalise une copie du tableau et le déréférence si il est référencé plus d'une fois.
+Avec le 3 ième paramètre qui vaut 1, qui réalise une copie du tableau et le déréférence si il est référencé plus d'une fois.
 
 
 ## Les string.
@@ -109,14 +109,14 @@ Le second paramètre est la longueur de la chaîne, et le dernier paramètre ind
 
 ## Array
 
-Pour comprendre comment les array fonctionnent il faut comprendre les hastable, un array etant une zval qui pointe vers un hastable. Je renvoie vers la lecture de [l'article](http://blog.jpauli.tech/2016-04-08-hashtables-html/) du blog de Julien Pauli.
+Pour comprendre comment les array fonctionnent il faut comprendre les hastable, un array etant une zval qui pointe vers un hashtable. Je renvoie vers la lecture de [l'article](http://blog.jpauli.tech/2016-04-08-hashtables-html/) du blog de Julien Pauli.
 
-Donc quand on travaille avec les Array PHP, en définitive il est plus simple d'utiliser les HashTable q
+Donc quand on travaille avec les Array PHP, en définitive il est plus simple d'utiliser les HashTable
 qui ont une api définit dans [zend_hash.c](https://github.com/php/php-src/blob/master/Zend/zend_hash.c) du code source de PHP. Les fonction exposé sont préfixées de ZEND_API.
 
 ### initialiser un tableau.
 
-L'initialisation d'un tableau ou d'un hashtable se fait en deux temps. D'abbord on a alloue la mémoire, puis ensuite on l'initialise
+L'initialisation d'un tableau ou d'un hashtable se fait en deux temps. D'abord on a alloue la mémoire, puis ensuite on l'initialise
 
 #### Initilisation d'un array
 ```c
@@ -127,7 +127,7 @@ zend_hash_real_init( Z_ARRVAL_P(tab), 1);
 ```
 Avec [Z_ARRVAL_P](https://phpinternals.net/docs/z_arrval) la macro PHP qui va récupérer la valeur de l'Array, c'est à dire le HashTable.
 
-#### Initialisation d'un Hashtable
+#### Initialisation d'un hashtable
 
 ```c
 zend_hash_init( tab, 1, 0, ZVAL_PTR_DTOR , 0 );
@@ -138,7 +138,7 @@ avec [zend_hash_init](https://phpinternals.net/docs/zend_hash_init)
 
 ### ajouter un élement à un tableau.
 
-La fonction suivante permet d'ajouter un élément à la find d'un tableau, le nouveau tableau est retourné:
+La fonction suivante permet d'ajouter un élément à la fin d'un tableau, le nouveau tableau est retourné:
 ```c
 PHP_FUNCTION(add_element) {
 
@@ -163,7 +163,7 @@ PHP_FUNCTION(add_element) {
 	ZVAL_ARR(return_value, tab);
 }
 ```
-Noter que le tableau passé en argument est déréférencé. En effet, la fonction qui ajoute un élément ne peux fonctionner que si le tableau a une seul référence:
+Noter que le tableau passé en argument est déréférencé. En effet, la fonction qui ajoute un élément ne peux fonctionner que si le tableau a une seule référence:
 ```c
 Z_PARAM_ARRAY_HT_EX(tab, 0, 1)
 ```
@@ -203,7 +203,6 @@ PHP_FUNCTION(array_unset) {
 
 ### trouver un élément dans un tableau.
 
-Nota cette fonction ne fonctionn pas ??
 
 ```c
 PHP_FUNCTION(array_find_element) {
